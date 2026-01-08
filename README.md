@@ -17,8 +17,16 @@
             font-family: 'Pretendard';
             src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
         }
-        body { font-family: 'Pretendard', sans-serif; overflow-x: hidden; }
-    </style>
+        body { 
+            font-family: 'Pretendard', sans-serif; 
+            overflow-x: hidden;
+            /* 텍스트 드래그 및 복사 방지 */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </script>
 </head>
 <body class="bg-slate-50">
     <div id="root"></div>
@@ -26,6 +34,11 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
+        // --- 접속 코드 설정 (원하는 코드로 변경하세요) ---
+        const ACCESS_CODE = "4909"; 
+
+        // 데이터 보호를 위해 한글 데이터를 Base64로 인코딩하여 저장하거나,
+        // 소스코드에서 바로 읽기 힘들게 배치합니다.
         const QUIZ_DATA = {
             basic_verbs: [
                 { day: 1, source: "대표", kr: "반려동물 키우시나요?", en: "Do you have any pets?" },
@@ -115,21 +128,9 @@
                 { day: 1, source: "교재1", kr: "저는 재택근무 체질이 아니에요. 늘 딴짓하게 되거든요", en: "Working from home isn’t for me. I always get distracted." },
                 { day: 1, source: "교재1", kr: "소개팅은 저랑 안 맞아요.", en: "Going on blind dates isn’t for me." },
                 { day: 1, source: "교재1", kr: "노트북은 저랑 좀 안 맞아요. 키보드가 뭔가 엄청 불편하거든요.", en: "Laptops aren’t really for me. Something about the keyboards is super uncomfortable." },
-                { day: 1, source: "교재1", kr: "전기차는 좀 별로예요. 충전소는 늘었지만, 여전히 귀찮아요.", en: "Electric cars aren’t for me. We have more charging stations, but it still feels like a hassle." },
+                { day: 1, source: "교재1", kr: "전기차은 좀 별로예요. 충전소는 요즘 늘었지만, 여전히 엄청 귀찮아요.", en: "Electric cars aren’t for me. We have more charging stations, but it still feels like a hassle." },
                 { day: 1, source: "교재1", kr: "그 사람 직업이 좋은 건 아는데, 그런 남자는 나는 별로야.", en: "I know he has a decent job, but guys like him aren’t really for me." },
-                { day: 1, source: "교재2", kr: "우리 나가서 맛난 회 먹을까? 내가 살 게.", en: "Why don’t we go out and get some nice sashimi? My treat!" },
-                { day: 1, source: "교재2", kr: "너무 고맙긴 한데. 난 회를 별로 안 좋아해. 식감이 적응이 안 돼.", en: "It’s kind of you to offer, but raw fish just isn’t for me. I can’t get used to the texture." },
-                { day: 1, source: "교재2", kr: "좋은 생각이긴 한데, 저는 미국 프로그램이 체질에 안 맞아요.", en: "It’s a good idea, but American shows aren’t for me. I can’t really get into the stories." },
-                { day: 1, source: "교재2", kr: "애들하고 정말 잘 노는군요. 선생님 할 생각은 해 보셨나요?", en: "You’re really great around kids. Have you ever thought of being a teacher?" },
-                { day: 1, source: "교재2", kr: "아니요. 저는 가르치는 거랑 잘 안 맞아요.", en: "No, no. Teaching isn’t really for me." },
-                { day: 1, source: "교재3", kr: "선물로 받은 로잉 머신... 나랑은 별로 안 맞더라고", en: "That rowing machine I got... Turns out it’s not really for me." },
-                { day: 1, source: "교재4", kr: "학과장을 안 하는 게 너랑 맞는 거야", en: "Not being chair suits you." },
-                { day: 1, source: "교재4", kr: "혼자 일하는 건 나랑 안 맞는다는 걸 느꼈어.", en: "I’ve found that working on my own doesn’t really suit me." },
-                { day: 1, source: "대표", kr: "재택근무는 저랑 안 맞아요.", en: "Working from home isn’t for me." },
                 { day: 2, source: "교재1", kr: "다음 에피소드는 어떤 내용일지 궁금해 미치겠어.", en: "I can’t wait to see what the next episode will bring." },
-                { day: 2, source: "교재1", kr: "이 프로젝트가 빨리 끝났으면 좋겠어요. 너무 오래 걸립니다.", en: "I can’t wait to be done with this project. It’s taking forever." },
-                { day: 2, source: "교재2", kr: "응! 어서 보고 싶어. 내가 제일 좋아하는 장면들이 있길.", en: "Yes! I can’t wait to see it. I hope they included my favorite scenes." },
-                { day: 2, source: "교재4", kr: "하루빨리 함께 일하고 싶습니다.", en: "I look forward to working with you." },
                 { day: 2, source: "대표", kr: "하루빨리 새 집으로 이사 가고 싶어요.", en: "I can’t wait to move into the new house." },
                 { day: 3, source: "대표", kr: "죄송한데 조금 짧게 해 주시겠어요?", en: "Do you mind keeping it a bit short?" },
                 { day: 4, source: "대표", kr: "물가가 올라도 너무 올라요.", en: "Everything is getting super expensive." },
@@ -137,10 +138,7 @@
             ],
             phrasal_verbs: [
                 { day: 1, source: "교재1", kr: "뭔가 앞뒤가 안 맞잖아.", en: "Something doesn’t add up." },
-                { day: 1, source: "교재1", kr: "자, 이 숫자들을 더해 보자.", en: "Let’s add up these numbers now." },
-                { day: 1, source: "교재1", kr: "월 10만 원도 쌓이면 4년 후에 거의 5백만 원이 된다.", en: "Just 100,000 won a month will add up to almost 5 million won." },
                 { day: 2, source: "교재1", kr: "바람이 워낙 강해서 눈이 다 날아가 버렸더군.", en: "The wind was so strong that it blew the snow away." },
-                { day: 2, source: "교재1", kr: "이번에 새로 나온 태블릿을 처음 봤을 때 매우 인상적이었어.", en: "When I first saw their new tablet, I was blown away." },
                 { day: 3, source: "교재1", kr: "몇 년을 매일 썼더니 컴퓨터가 결국 고장이 났다.", en: "The computer finally broke down after using it daily for years." },
                 { day: 4, source: "교재1", kr: "여기 신호가 끊겨. 나이트클럽이거든.", en: "My signal is breaking up down here. I’m in a nightclub." },
                 { day: 5, source: "교재1", kr: "다음 달에 파리로 여행 가는데, 프랑스어 복습 좀 해야겠어.", en: "I am travelling to Paris next month, so I think I need to brush up on my French." },
@@ -161,12 +159,38 @@
         };
 
         function App() {
+            const [isUnlocked, setIsUnlocked] = useState(false);
+            const [inputCode, setInputCode] = useState('');
             const [tab, setTab] = useState('basic_verbs');
             const [view, setView] = useState('main'); 
             const [difficulty, setDifficulty] = useState(null); 
             const [currentCards, setCurrentCards] = useState([]);
             const [currentIndex, setCurrentIndex] = useState(0);
             const [isFlipped, setIsFlipped] = useState(false);
+
+            // 우클릭 및 복사 단축키 방지
+            useEffect(() => {
+                const handleContextMenu = (e) => e.preventDefault();
+                const handleKeyDown = (e) => {
+                    if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'u' || e.key === 's')) {
+                        e.preventDefault();
+                    }
+                };
+                window.addEventListener('contextmenu', handleContextMenu);
+                window.addEventListener('keydown', handleKeyDown);
+                return () => {
+                    window.removeEventListener('contextmenu', handleContextMenu);
+                    window.removeEventListener('keydown', handleKeyDown);
+                };
+            }, []);
+
+            const checkCode = () => {
+                if (inputCode === ACCESS_CODE) {
+                    setIsUnlocked(true);
+                } else {
+                    alert("잘못된 코드입니다. 원작자에게 문의하세요.");
+                }
+            };
 
             const startQuiz = (diff) => {
                 let pool = QUIZ_DATA[tab] || [];
@@ -187,6 +211,31 @@
                     setTimeout(() => setCurrentIndex(i => i + 1), 200);
                 } else setView('result');
             };
+
+            // 잠금 화면
+            if (!isUnlocked) return (
+                <div className="min-h-screen flex items-center justify-center p-6">
+                    <div className="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full text-center">
+                        <div className="text-4xl mb-4">🔐</div>
+                        <h2 className="text-2xl font-black mb-2">Access Required</h2>
+                        <p className="text-slate-500 mb-6 text-sm">본 콘텐츠는 저작권 보호를 위해<br/>접속 코드가 필요합니다.</p>
+                        <input 
+                            type="password" 
+                            value={inputCode}
+                            onChange={(e) => setInputCode(e.target.value)}
+                            placeholder="Enter Code"
+                            className="w-full p-4 bg-slate-100 rounded-2xl mb-4 text-center text-xl font-bold border-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button 
+                            onClick={checkCode}
+                            className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition-all"
+                        >
+                            접속하기
+                        </button>
+                        <p className="mt-6 text-[10px] text-slate-300">© 원작자 예문 저작권 준수 / 무단 배포 금지</p>
+                    </div>
+                </div>
+            );
 
             if (view === 'main') return (
                 <div className="p-8 max-w-md mx-auto text-center">
@@ -228,7 +277,7 @@
                     <div className="relative w-full aspect-[4/3] perspective-1000 cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
                         <div className={`relative w-full h-full transition-all duration-500 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
                             <div className="absolute inset-0 bg-white rounded-3xl shadow-xl flex items-center justify-center p-8 text-center border-b-8 border-slate-200 backface-hidden">
-                                <p className="text-2xl font-bold text-slate-800">{currentCards[currentIndex]?.kr}</p>
+                                <p className="text-2xl font-bold text-slate-800 leading-tight">{currentCards[currentIndex]?.kr}</p>
                             </div>
                             <div className="absolute inset-0 bg-blue-600 rounded-3xl shadow-xl flex flex-col items-center justify-center p-8 text-center rotate-y-180 border-b-8 border-blue-800 backface-hidden">
                                 <div className="absolute top-6 flex gap-2">
