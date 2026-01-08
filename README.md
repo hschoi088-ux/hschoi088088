@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speed Quiz English</title>
+    <title>Speed Quiz Protected</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -19,26 +19,23 @@
         }
         body { 
             font-family: 'Pretendard', sans-serif; 
-            overflow-x: hidden;
-            /* 텍스트 드래그 및 복사 방지 */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            background-color: #f8fafc;
         }
-    </script>
+    </style>
 </head>
-<body class="bg-slate-50">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- 접속 코드 설정 (원하는 코드로 변경하세요) ---
-        const ACCESS_CODE = "4909"; 
+        // --- 접속 비밀번호 설정 ---
+        const SECRET_PASSWORD = "1234"; 
 
-        // 데이터 보호를 위해 한글 데이터를 Base64로 인코딩하여 저장하거나,
-        // 소스코드에서 바로 읽기 힘들게 배치합니다.
         const QUIZ_DATA = {
             basic_verbs: [
                 { day: 1, source: "대표", kr: "반려동물 키우시나요?", en: "Do you have any pets?" },
@@ -126,11 +123,6 @@
             ],
             conversation: [
                 { day: 1, source: "교재1", kr: "저는 재택근무 체질이 아니에요. 늘 딴짓하게 되거든요", en: "Working from home isn’t for me. I always get distracted." },
-                { day: 1, source: "교재1", kr: "소개팅은 저랑 안 맞아요.", en: "Going on blind dates isn’t for me." },
-                { day: 1, source: "교재1", kr: "노트북은 저랑 좀 안 맞아요. 키보드가 뭔가 엄청 불편하거든요.", en: "Laptops aren’t really for me. Something about the keyboards is super uncomfortable." },
-                { day: 1, source: "교재1", kr: "전기차은 좀 별로예요. 충전소는 요즘 늘었지만, 여전히 엄청 귀찮아요.", en: "Electric cars aren’t for me. We have more charging stations, but it still feels like a hassle." },
-                { day: 1, source: "교재1", kr: "그 사람 직업이 좋은 건 아는데, 그런 남자는 나는 별로야.", en: "I know he has a decent job, but guys like him aren’t really for me." },
-                { day: 2, source: "교재1", kr: "다음 에피소드는 어떤 내용일지 궁금해 미치겠어.", en: "I can’t wait to see what the next episode will bring." },
                 { day: 2, source: "대표", kr: "하루빨리 새 집으로 이사 가고 싶어요.", en: "I can’t wait to move into the new house." },
                 { day: 3, source: "대표", kr: "죄송한데 조금 짧게 해 주시겠어요?", en: "Do you mind keeping it a bit short?" },
                 { day: 4, source: "대표", kr: "물가가 올라도 너무 올라요.", en: "Everything is getting super expensive." },
@@ -159,6 +151,7 @@
         };
 
         function App() {
+            // 초기값을 엄격하게 false로 설정
             const [isUnlocked, setIsUnlocked] = useState(false);
             const [inputCode, setInputCode] = useState('');
             const [tab, setTab] = useState('basic_verbs');
@@ -168,7 +161,7 @@
             const [currentIndex, setCurrentIndex] = useState(0);
             const [isFlipped, setIsFlipped] = useState(false);
 
-            // 우클릭 및 복사 단축키 방지
+            // 보안 설정
             useEffect(() => {
                 const handleContextMenu = (e) => e.preventDefault();
                 const handleKeyDown = (e) => {
@@ -185,10 +178,11 @@
             }, []);
 
             const checkCode = () => {
-                if (inputCode === ACCESS_CODE) {
+                if (inputCode === SECRET_PASSWORD) {
                     setIsUnlocked(true);
                 } else {
-                    alert("잘못된 코드입니다. 원작자에게 문의하세요.");
+                    alert("비밀번호가 틀렸습니다.");
+                    setInputCode('');
                 }
             };
 
@@ -205,45 +199,45 @@
                 setView('quiz');
             };
 
-            const handleNext = () => {
-                if (currentIndex < currentCards.length - 1) {
-                    setIsFlipped(false);
-                    setTimeout(() => setCurrentIndex(i => i + 1), 200);
-                } else setView('result');
-            };
-
-            // 잠금 화면
-            if (!isUnlocked) return (
-                <div className="min-h-screen flex items-center justify-center p-6">
-                    <div className="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full text-center">
-                        <div className="text-4xl mb-4">🔐</div>
-                        <h2 className="text-2xl font-black mb-2">Access Required</h2>
-                        <p className="text-slate-500 mb-6 text-sm">본 콘텐츠는 저작권 보호를 위해<br/>접속 코드가 필요합니다.</p>
-                        <input 
-                            type="password" 
-                            value={inputCode}
-                            onChange={(e) => setInputCode(e.target.value)}
-                            placeholder="Enter Code"
-                            className="w-full p-4 bg-slate-100 rounded-2xl mb-4 text-center text-xl font-bold border-none focus:ring-2 focus:ring-blue-500"
-                        />
-                        <button 
-                            onClick={checkCode}
-                            className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition-all"
-                        >
-                            접속하기
-                        </button>
-                        <p className="mt-6 text-[10px] text-slate-300">© 원작자 예문 저작권 준수 / 무단 배포 금지</p>
+            // 잠겨 있을 때 (비밀번호 화면)
+            if (!isUnlocked) {
+                return (
+                    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
+                        <div className="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
+                            <div className="text-5xl mb-6">🔒</div>
+                            <h2 className="text-2xl font-black text-slate-800 mb-2">Protected Content</h2>
+                            <p className="text-slate-500 mb-8 text-sm leading-relaxed">
+                                이 학습 도구는 저작권 보호를 위해<br/>
+                                <span className="font-bold text-blue-600">접속 비밀번호</span>가 필요합니다.
+                            </p>
+                            <input 
+                                type="tel" 
+                                value={inputCode}
+                                onChange={(e) => setInputCode(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && checkCode()}
+                                placeholder="Passcode"
+                                className="w-full p-4 bg-slate-100 rounded-2xl mb-4 text-center text-2xl font-black tracking-widest border-2 border-transparent focus:border-blue-500 outline-none transition-all"
+                            />
+                            <button 
+                                onClick={checkCode}
+                                className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 active:scale-95 transition-all mb-4"
+                            >
+                                Unlock Now
+                            </button>
+                            <p className="text-[10px] text-slate-400">© 2024 Phrasal Verb Speed Quiz</p>
+                        </div>
                     </div>
-                </div>
-            );
+                );
+            }
 
+            // 잠금 해제 후 메인 화면
             if (view === 'main') return (
-                <div className="p-8 max-w-md mx-auto text-center">
-                    <h1 className="text-3xl font-black text-blue-700 mb-8">SPEED QUIZ</h1>
+                <div className="min-h-screen p-8 max-w-md mx-auto text-center flex flex-col justify-center">
+                    <h1 className="text-4xl font-black text-blue-700 mb-10 tracking-tighter">SPEED QUIZ</h1>
                     <div className="grid gap-4">
                         {Object.keys(CURRICULUM_LABELS).map(key => (
                             <button key={key} onClick={() => { setTab(key); setView('selection'); }}
-                                className="bg-white p-6 rounded-2xl border-2 border-slate-100 shadow-sm hover:border-blue-400 transition-all text-xl font-bold">
+                                className="bg-white p-6 rounded-2xl border-2 border-slate-100 shadow-sm hover:border-blue-400 hover:shadow-md transition-all text-xl font-bold text-slate-700">
                                 {CURRICULUM_LABELS[key]}
                             </button>
                         ))}
@@ -251,28 +245,30 @@
                 </div>
             );
 
+            // 난이도 선택 화면
             if (view === 'selection') return (
-                <div className="p-8 max-w-md mx-auto text-center">
+                <div className="min-h-screen p-8 max-w-md mx-auto text-center flex flex-col justify-center">
                     <h2 className="text-2xl font-black mb-8">Week 1 (Day 1-5)</h2>
                     <div className="grid gap-4">
-                        <button onClick={() => startQuiz('mild')} className="bg-green-50 border-2 border-green-200 p-8 rounded-3xl text-left">
+                        <button onClick={() => startQuiz('mild')} className="bg-green-50 border-2 border-green-200 p-8 rounded-3xl text-left hover:bg-green-100 transition-all">
                             <h3 className="text-xl font-bold text-green-800">순한맛 (Mild)</h3>
                             <p className="text-green-600">대표 & Model examples</p>
                         </button>
-                        <button onClick={() => startQuiz('spicy')} className="bg-red-50 border-2 border-red-200 p-8 rounded-3xl text-left">
+                        <button onClick={() => startQuiz('spicy')} className="bg-red-50 border-2 border-red-200 p-8 rounded-3xl text-left hover:bg-red-100 transition-all">
                             <h3 className="text-xl font-bold text-red-800">매운맛 (Spicy)</h3>
                             <p className="text-red-600">모든 예제 중 랜덤 10개</p>
                         </button>
-                        <button onClick={() => setView('main')} className="mt-4 text-slate-400 font-bold underline">뒤로가기</button>
+                        <button onClick={() => setView('main')} className="mt-8 text-slate-400 font-bold underline">Go Back</button>
                     </div>
                 </div>
             );
 
+            // 퀴즈 화면
             if (view === 'quiz' && currentCards.length > 0) return (
-                <div className="p-4 max-w-md mx-auto flex flex-col items-center">
+                <div className="min-h-screen p-4 max-w-md mx-auto flex flex-col items-center justify-center">
                     <div className="w-full flex justify-between mb-4 font-bold text-slate-400">
                         <span>{currentIndex + 1} / {currentCards.length}</span>
-                        <button onClick={() => setView('main')}>그만하기</button>
+                        <button onClick={() => setView('main')} className="text-blue-500">Exit</button>
                     </div>
                     <div className="relative w-full aspect-[4/3] perspective-1000 cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
                         <div className={`relative w-full h-full transition-all duration-500 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
@@ -282,28 +278,36 @@
                             <div className="absolute inset-0 bg-blue-600 rounded-3xl shadow-xl flex flex-col items-center justify-center p-8 text-center rotate-y-180 border-b-8 border-blue-800 backface-hidden">
                                 <div className="absolute top-6 flex gap-2">
                                     <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold">Day {currentCards[currentIndex]?.day}</span>
-                                    <span className="bg-yellow-400 text-blue-900 px-3 py-1 rounded-full text-xs font-black">{SOURCE_LABELS[currentCards[currentIndex]?.source] || "예제"}</span>
+                                    <span className="bg-yellow-400 text-blue-900 px-3 py-1 rounded-full text-xs font-black">{SOURCE_LABELS[currentCards[currentIndex]?.source] || "Example"}</span>
                                 </div>
-                                <p className="text-2xl font-black text-white">{currentCards[currentIndex]?.en}</p>
+                                <p className="text-2xl font-black text-white leading-snug">{currentCards[currentIndex]?.en}</p>
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-4 mt-8 w-full">
+                    <div className="flex gap-4 mt-10 w-full">
                         <button onClick={(e) => { e.stopPropagation(); setIsFlipped(false); if(currentIndex > 0) setCurrentIndex(currentIndex - 1); }}
-                            className="flex-1 bg-white py-5 rounded-2xl font-bold border border-slate-200 shadow-sm">이전</button>
-                        <button onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                            className={`flex-1 text-white py-5 rounded-2xl font-bold shadow-lg ${difficulty === 'mild' ? 'bg-green-600' : 'bg-red-600'}`}>
-                            {currentIndex === currentCards.length - 1 ? '완료' : '다음'}
+                            className="flex-1 bg-white py-5 rounded-2xl font-bold border border-slate-200 shadow-sm active:bg-slate-50">Prev</button>
+                        <button onClick={(e) => { 
+                            e.stopPropagation(); 
+                            if (currentIndex < currentCards.length - 1) {
+                                setIsFlipped(false);
+                                setTimeout(() => setCurrentIndex(currentIndex + 1), 200);
+                            } else setView('result');
+                        }}
+                            className={`flex-1 text-white py-5 rounded-2xl font-bold shadow-lg active:scale-95 transition-all ${difficulty === 'mild' ? 'bg-green-600' : 'bg-red-600'}`}>
+                            {currentIndex === currentCards.length - 1 ? 'Finish' : 'Next'}
                         </button>
                     </div>
                 </div>
             );
 
+            // 결과 화면
             if (view === 'result') return (
-                <div className="p-10 text-center max-w-md mx-auto">
-                    <h2 className="text-4xl font-black text-slate-800 mb-4">학습 완료!</h2>
-                    <p className="text-slate-500 mb-8">오늘의 10문장을 모두 마쳤습니다.</p>
-                    <button onClick={() => setView('main')} className="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-xl shadow-lg">메인으로 돌아가기</button>
+                <div className="min-h-screen p-10 text-center max-w-md mx-auto flex flex-col justify-center">
+                    <div className="text-6xl mb-6">🏆</div>
+                    <h2 className="text-4xl font-black text-slate-800 mb-4">Complete!</h2>
+                    <p className="text-slate-500 mb-10">오늘의 10문장 학습을 완료했습니다.</p>
+                    <button onClick={() => setView('main')} className="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-xl shadow-lg hover:bg-blue-700 transition-all">Back to Menu</button>
                 </div>
             );
 
